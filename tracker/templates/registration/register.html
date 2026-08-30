@@ -1,14 +1,14 @@
 <!DOCTYPE html>
 <html>
-<head><title>สมัครสมาชิก</title></head>
+<head><title>Register</title></head>
 <body>
-    <h1>สมัครสมาชิกใหม่</h1>
+    <h1>Register</h1>
     <form method="POST">
         {% csrf_token %}
         {{ form.as_p }}
         <button type="submit">Register</button>
     </form>
     <br>
-    <a href="{% url 'login' %}">มีบัญชีอยู่แล้ว? เข้าสู่ระบบ</a>
+    <a href="{% url 'login' %}">Have account? Login</a>
 </body>
 </html>

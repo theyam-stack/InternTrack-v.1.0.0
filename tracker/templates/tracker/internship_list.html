@@ -5,25 +5,25 @@
 </head>
 <body>
     <div style="text-align: right; padding: 10px; background: #eee;">
-        ผู้ใช้งาน: <strong>{{ user.username }}</strong> | 
+        User: <strong>{{ user.username }}</strong> | 
         <form method="POST" action="{% url 'logout' %}" style="display:inline;">
             {% csrf_token %}
             <button type="submit">ออกจากระบบ (Logout)</button>
         </form>
     </div>
-    <h1>รายชื่อบริษัทที่สมัครฝึกงาน</h1>
-    <a href="{% url 'internship_create' %}"> + เพิ่มข้อมูลการสมัคร</a>
+    <h1>Internship Applications</h1>
+    <a href="{% url 'internship_create' %}"> + Add New Application</a>
     <hr>
     <ul>
         {% for internship in internships %}
             <li>
                 <strong>{{ internship.company_name }}</strong> - {{ internship.role }} 
-                (สถานะ: {{ internship.get_status_display }})
-                <a href="{% url 'internship_update' internship.pk %}">[แก้ไข]</a>
-                <a href="{% url 'internship_delete' internship.pk %}">[ลบ]</a>
+                (Status: {{ internship.get_status_display }})
+                <a href="{% url 'internship_update' internship.pk %}">[edit]</a>
+                <a href="{% url 'internship_delete' internship.pk %}">[delete]</a>
             </li>
         {% empty %}
-            <li>ยังไม่มีข้อมูลการสมัครฝึกงาน</li>
+            <li>No information internship applications.</li>
         {% endfor %}
     </ul>
 </body>
