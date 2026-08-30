@@ -4,6 +4,13 @@
     <title>InternTrack</title>
 </head>
 <body>
+    <div style="text-align: right; padding: 10px; background: #eee;">
+        ผู้ใช้งาน: <strong>{{ user.username }}</strong> | 
+        <form method="POST" action="{% url 'logout' %}" style="display:inline;">
+            {% csrf_token %}
+            <button type="submit">ออกจากระบบ (Logout)</button>
+        </form>
+    </div>
     <h1>รายชื่อบริษัทที่สมัครฝึกงาน</h1>
     <a href="{% url 'internship_create' %}"> + เพิ่มข้อมูลการสมัคร</a>
     <hr>
