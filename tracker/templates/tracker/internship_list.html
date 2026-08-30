@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>InternTrack</title>
+</head>
+<body>
+    <h1>รายชื่อบริษัทที่สมัครฝึกงาน</h1>
+    <a href="{% url 'internship_create' %}"> + เพิ่มข้อมูลการสมัคร</a>
+    <hr>
+    <ul>
+        {% for internship in internships %}
+            <li>
+                <strong>{{ internship.company_name }}</strong> - {{ internship.role }} 
+                (สถานะ: {{ internship.get_status_display }})
+                <a href="{% url 'internship_update' internship.pk %}">[แก้ไข]</a>
+                <a href="{% url 'internship_delete' internship.pk %}">[ลบ]</a>
+            </li>
+        {% empty %}
+            <li>ยังไม่มีข้อมูลการสมัครฝึกงาน</li>
+        {% endfor %}
+    </ul>
+</body>
+</html>

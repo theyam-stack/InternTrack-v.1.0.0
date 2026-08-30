@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>ฟอร์มข้อมูลฝึกงาน</title>
+</head>
+<body>
+    <h1>เพิ่มข้อมูลการสมัคร</h1>
+    <form method="POST">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">บันทึกข้อมูล</button>
+    </form>
+    <br>
+    <a href="{% url 'internship_list' %}">กลับหน้ารวม</a>
+</body>
+</html>
