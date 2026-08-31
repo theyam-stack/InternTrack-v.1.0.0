@@ -7,10 +7,54 @@
     <h1>Add/Edit Application</h1>
     <form method="POST">
         {% csrf_token %}
-        {{ form.as_p }}
+
+        <p>
+            <label for="id_company_name">Company:</label>
+            <input type="text" name="company_name" id="id_company_name"
+                   list="company-options"
+                   value="{{ form.company_name.value|default:'' }}"
+                   placeholder="Select or type a new company">
+            <datalist id="company-options">
+                {% for company in companies %}
+                    <option value="{{ company.name }}">
+                {% endfor %}
+            </datalist>
+        </p>
+
+        {{ form.role.label_tag }} {{ form.role }}<br><br>
+        {{ form.status.label_tag }} {{ form.status }}<br><br>
+        {{ form.application_date.label_tag }} {{ form.application_date }}<br><br>
+        {{ form.notes.label_tag }} {{ form.notes }}<br><br>
+
+        <div id="interview-section" style="display:none; border:1px solid #ccc; padding:10px; margin-bottom:10px;">
+            <h3>Interview Details</h3>
+            <label for="id_interview_date">Interview Date/Time:</label>
+            <input type="datetime-local" name="interview_date" id="id_interview_date"
+                   value="{{ interview_date_value|default:'' }}"><br><br>
+            <label for="id_interview_type">Interview Type:</label>
+            <input type="text" name="interview_type" id="id_interview_type"
+                   value="{{ interview_type_value|default:'' }}" placeholder="e.g. Phone, Onsite, Technical"><br>
+        </div>
+
         <button type="submit">Save</button>
     </form>
     <br>
     <a href="{% url 'internship_list' %}">Go back to home page</a>
+
+    <script>
+        const statusField = document.getElementById('id_status');
+        const interviewSection = document.getElementById('interview-section');
+
+        function toggleInterviewSection() {
+            if (statusField.value === 'Interview') {
+                interviewSection.style.display = 'block';
+            } else {
+                interviewSection.style.display = 'none';
+            }
+        }
+
+        statusField.addEventListener('change', toggleInterviewSection);
+        toggleInterviewSection(); // run on page load too, in case editing an existing Interview-status entry
+    </script>
 </body>
 </html>

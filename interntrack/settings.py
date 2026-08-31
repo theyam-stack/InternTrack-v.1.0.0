@@ -76,9 +76,9 @@ WSGI_APPLICATION = 'interntrack.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'interntrack_db',
+        'NAME': 'database_interntrack',
         'USER': 'postgres',
-        'PASSWORD': 'admin123',
+        'PASSWORD': '12345678',
         'HOST': 'localhost',
         'PORT': '5432',
     }
