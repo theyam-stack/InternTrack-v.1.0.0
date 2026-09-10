@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block title %}Companies — InternTrack{% endblock %}
+{% block page_title %}Companies{% endblock %}
+
+{% block content %}
+  <div class="page-head">
+    <div>
+      <h1>Companies</h1>
+      <p class="sub">Every organisation you have applied to.</p>
+    </div>
+  </div>
+
+  <div class="card" style="padding:8px">
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Company</th><th>Website</th><th>Location</th><th>Applications</th><th>Furthest stage</th></tr>
+        </thead>
+        <tbody>
+          {% for company in companies %}
+            <tr>
+              <td>
+                <span class="cell-company">
+                  {% include "tracker/partials/_logo_chip.html" %}
+                  {{ company.name }}
+                </span>
+              </td>
+              <td class="muted">
+                {% if company.website %}
+                  <a href="{{ company.website }}" style="color:var(--orange)" rel="noopener">{{ company.website }}</a>
+                {% else %}—{% endif %}
+              </td>
+              <td class="muted">{{ company.location|default:"—" }}</td>
+              <td class="cell-strong">{{ company.application_count }}</td>
+              <td><span class="badge badge-{{ company.furthest_stage|lower }}">{{ company.furthest_stage }}</span></td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    {% if not companies %}
+      <div class="empty">
+        <h3>No companies yet</h3>
+        <p>Companies appear here as soon as you track an application against them.</p>
+        <a class="btn btn-primary" href="{% url 'internship_create' %}">Add application</a>
+      </div>
+    {% endif %}
+  </div>
+{% endblock %}

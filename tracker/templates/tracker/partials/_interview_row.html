@@ -1,0 +1,17 @@
+{# One upcoming interview. Used on the dashboard and the interviews page. #}
+<div class="row-item">
+  {% include "tracker/partials/_logo_chip.html" with company=interview.internship.company %}
+  <span class="who">
+    <b>{{ interview.internship.company.name }}</b>
+    <small>{{ interview.internship.role }}</small>
+  </span>
+  <span class="row-meta">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+    {{ interview.interview_date|date:"j M Y" }} · {{ interview.interview_date|date:"h:i A" }}
+  </span>
+  {% if interview.interview_type %}
+    <span class="badge badge-interview">{{ interview.interview_type }}</span>
+  {% endif %}
+  <span class="muted" style="font-size:.82rem">{{ interview.interview_status_text }}</span>
+  <a class="btn btn-sm" href="{% url 'internship_detail' interview.internship.pk %}">Prepare</a>
+</div>

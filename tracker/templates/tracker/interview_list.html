@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% load tracker_extras %}
+
+{% block title %}Interviews — InternTrack{% endblock %}
+{% block page_title %}Interviews{% endblock %}
+
+{% block content %}
+  <div class="page-head">
+    <div>
+      <h1 style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+        Upcoming interviews
+        <span class="badge badge-live">{{ upcoming|length }} active</span>
+      </h1>
+      <p class="sub">Every interview you have booked, soonest first.</p>
+    </div>
+    <div class="pills" style="margin:0">
+      {% for value, label in range_options %}
+        <a class="pill {% if range_filter == value %}is-active{% endif %}"
+           href="{% query_string range=value %}">{{ label }}</a>
+      {% endfor %}
+    </div>
+  </div>
+
+  <div class="card">
+    {% for interview in upcoming %}
+      {% include "tracker/partials/_interview_row.html" %}
+    {% empty %}
+      <div class="empty">
+        <h3>No interviews in this range</h3>
+        <p>Widen the filter, or add an interview date to an application.</p>
+        <a class="btn btn-primary" href="{% url 'internship_list' %}">Go to applications</a>
+      </div>
+    {% endfor %}
+  </div>
+
+  {% if past %}
+    <div class="card">
+      <div class="card-head"><h3>Past interviews</h3></div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Company</th><th>Position</th><th>Date</th><th>Outcome</th></tr></thead>
+          <tbody>
+            {% for interview in past %}
+              <tr data-href="{% url 'internship_detail' interview.internship.pk %}">
+                <td class="cell-strong">{{ interview.internship.company.name }}</td>
+                <td class="muted">{{ interview.internship.role }}</td>
+                <td class="muted">{{ interview.interview_date|date:"j M Y" }}</td>
+                <td>
+                  {% if interview.internship.status == 'Accepted' %}
+                    <span class="badge badge-passed">Passed</span>
+                  {% elif interview.internship.status == 'Rejected' %}
+                    <span class="badge badge-rejected">Rejected</span>
+                  {% else %}
+                    <span class="badge badge-pending">Pending</span>
+                  {% endif %}
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  {% endif %}
+{% endblock %}

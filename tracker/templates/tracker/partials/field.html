@@ -1,0 +1,10 @@
+{% comment %}
+  One form field in the design's .field wrapper.
+  Usage: {% templatetag openblock %} include "tracker/partials/field.html" with field=form.role {% templatetag closeblock %}
+{% endcomment %}
+<div class="field">
+  <label for="{{ field.id_for_label }}">{{ field.label }}{% if field.field.required %} *{% endif %}</label>
+  {{ field }}
+  {% if field.help_text %}<div class="hint">{{ field.help_text }}</div>{% endif %}
+  {{ field.errors }}
+</div>

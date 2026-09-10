@@ -1,0 +1,13 @@
+{# One row of the applications table. Used by the list and by search results. #}
+<tr data-href="{% url 'internship_detail' internship.pk %}">
+  <td>
+    <span class="cell-company">
+      {% include "tracker/partials/_logo_chip.html" with company=internship.company %}
+      <a href="{% url 'internship_detail' internship.pk %}">{{ internship.company.name }}</a>
+    </span>
+  </td>
+  <td class="cell-strong">{{ internship.role }}</td>
+  <td class="muted">{{ internship.company.location|default:"—" }}</td>
+  <td class="muted">{{ internship.application_date|date:"j M Y" }}</td>
+  <td>{% include "tracker/partials/_status_badge.html" %}</td>
+</tr>

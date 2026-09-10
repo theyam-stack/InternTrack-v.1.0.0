@@ -1,0 +1,17 @@
+{# Table rows for the applications and search tables #}
+{% for application in applications %}
+  <tr class="row-link" data-href="{% url 'internship_detail' application.pk %}">
+    <td>
+      <span class="cell-company">
+        <a href="{% url 'internship_detail' application.pk %}">
+          {% include "tracker/partials/chip.html" with company=application.company %}
+          {{ application.company_name }}
+        </a>
+      </span>
+    </td>
+    <td class="cell-strong">{{ application.role }}</td>
+    <td class="muted">{{ application.location_display }}</td>
+    <td class="muted">{% if application.application_date %}{{ application.application_date|date:"j M Y" }}{% else %}Not applied yet{% endif %}</td>
+    <td><span class="badge badge-{{ application.status }}">{{ application.status_label }}</span></td>
+  </tr>
+{% endfor %}

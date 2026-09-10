@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+{% load static tracker_extras %}
+
+{% block title %}Applications — InternTrack{% endblock %}
+{% block page_title %}Applications{% endblock %}
+
+{% block content %}
+  <div class="page-head">
+    <div>
+      <h1>All applications</h1>
+      <p class="sub">{{ total_count }} total application{{ total_count|pluralize }} tracked</p>
+    </div>
+    <div style="display:flex;gap:12px;flex-wrap:wrap">
+      <button type="button" class="btn" id="toggle-filter" aria-expanded="false" aria-controls="list-filters">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 5h18l-7 8v6l-4 2v-8L3 5z"/></svg>
+        Filter
+      </button>
+      <a class="btn" href="{% url 'export_csv' %}{% if status_filter %}?status={{ status_filter }}{% endif %}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 3v12M8 11l4 4 4-4M4 19h16"/></svg>
+        Export CSV
+      </a>
+      <a class="btn btn-primary" href="{% url 'internship_create' %}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+        Add application
+      </a>
+    </div>
+  </div>
+
+  {# --- Status pills. Each is a link that swaps one query parameter. --- #}
+  <div class="pills">
+    <a class="pill {% if not status_filter %}is-active{% endif %}"
+       href="{% query_string status='' page=1 %}">All <span style="opacity:.7">{{ total_count }}</span></a>
+    {% for pill in status_pills %}
+      <a class="pill {% if status_filter == pill.value %}is-active{% endif %}"
+         href="{% query_string status=pill.value page=1 %}">
+        {{ pill.label }} <span style="opacity:.7">{{ pill.count }}</span>
+      </a>
+    {% endfor %}
+  </div>
+
+  <form class="toolbar" id="list-filters" method="get" hidden>
+    {# Keep the active status pill when searching or sorting. #}
+    <input type="hidden" name="status" value="{{ status_filter }}">
+    <div class="grow">
+      <input type="search" id="q" name="q" value="{{ search_query }}"
+             placeholder="Search company, role or location"
+             style="width:100%;padding:11px 14px;border-radius:10px;border:1px solid var(--line);background:#fff">
+    </div>
+    <select id="sort" name="sort" aria-label="Sort applications"
+            style="width:auto;padding:11px 14px;border-radius:10px;border:1px solid var(--line);background:#fff">
+      <option value="-application_date" {% if sort_order == '-application_date' %}selected{% endif %}>Newest first</option>
+      <option value="application_date" {% if sort_order == 'application_date' %}selected{% endif %}>Oldest first</option>
+      <option value="company__name" {% if sort_order == 'company__name' %}selected{% endif %}>By company</option>
+      <option value="role" {% if sort_order == 'role' %}selected{% endif %}>By position</option>
+    </select>
+    <button type="submit" class="btn btn-primary">Apply</button>
+  </form>
+
+  <div class="card" style="padding:8px">
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Company</th><th>Position</th><th>Location</th><th>Applied date</th><th>Status</th></tr>
+        </thead>
+        <tbody>
+          {% for internship in page_obj %}
+            {% include "tracker/partials/_application_row.html" %}
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    {% if not page_obj %}
+      <div class="empty">
+        <h3>Nothing matches those filters</h3>
+        <p>Try a different status or clear the keyword.</p>
+        <a class="btn btn-primary" href="{% url 'internship_create' %}">Add application</a>
+      </div>
+    {% else %}
+      <div class="tfoot">
+        <span class="muted">
+          Showing {{ page_obj.start_index }}–{{ page_obj.end_index }}
+          of {{ page_obj.paginator.count }} application{{ page_obj.paginator.count|pluralize }}
+        </span>
+        {% if page_obj.paginator.num_pages > 1 %}
+          <span class="pager">
+            {% if page_obj.has_previous %}
+              <a href="{% query_string page=page_obj.previous_page_number %}" aria-label="Previous page">‹</a>
+            {% else %}
+              <button disabled aria-label="Previous page">‹</button>
+            {% endif %}
+
+            {% for num in page_obj.paginator.page_range %}
+              {% if num == page_obj.number %}
+                <button class="is-active" aria-current="page">{{ num }}</button>
+              {% else %}
+                <a href="{% query_string page=num %}">{{ num }}</a>
+              {% endif %}
+            {% endfor %}
+
+            {% if page_obj.has_next %}
+              <a href="{% query_string page=page_obj.next_page_number %}" aria-label="Next page">›</a>
+            {% else %}
+              <button disabled aria-label="Next page">›</button>
+            {% endif %}
+          </span>
+        {% endif %}
+      </div>
+    {% endif %}
+  </div>
+{% endblock %}
+
+{% block extra_js %}
+  <script src="{% static 'js/tracker/applications.js' %}"></script>
+{% endblock %}

@@ -1,0 +1,2 @@
+{% load tracker_extras %}{# Coloured square holding the company's first letter. #}
+<span class="logo-chip" style="background:{{ company.name|chip_color }}" aria-hidden="true">{{ company.name|slice:":1"|upper }}</span>

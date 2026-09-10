@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{% if form.instance.pk %}Edit{% else %}Add{% endif %} application — InternTrack{% endblock %}
+{% block page_title %}{% if form.instance.pk %}Edit application{% else %}Add application{% endif %}{% endblock %}
+
+{% block content %}
+  <a class="back" href="{% url 'internship_list' %}">
+    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg>
+    Back to applications
+  </a>
+
+  <div class="page-head">
+    <div>
+      <h1>{% if form.instance.pk %}Edit application{% else %}Add new internship{% endif %}</h1>
+      <p class="sub">Keep your opportunity organised.</p>
+    </div>
+  </div>
+
+  <form method="post">
+    {% csrf_token %}
+
+    {% if form.non_field_errors %}
+      <div class="card" style="border-color:#EBC9C9;background:var(--tint-red);color:var(--red-deep)">
+        {{ form.non_field_errors|join:" " }}
+      </div>
+    {% endif %}
+
+    <div class="grid grid-2">
+      <div class="card">
+        <div class="card-head"><h3>Company information</h3></div>
+
+        <div class="field">
+          <label for="id_company_name">Company name *</label>
+          <input type="text" name="company_name" id="id_company_name" list="company-options" required
+                 value="{{ form.company_name.value|default:'' }}"
+                 placeholder="Select an existing company or type a new one">
+          <datalist id="company-options">
+            {% for company in companies %}<option value="{{ company.name }}">{% endfor %}
+          </datalist>
+          <div class="hint">A company you haven't used before will be created for you.</div>
+          {% for error in form.company_name.errors %}
+            <div class="hint" style="color:var(--red-deep)">{{ error }}</div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:0">
+        <div class="card-head"><h3>Application details</h3></div>
+
+        <div class="field">
+          <label for="{{ form.role.id_for_label }}">Position *</label>
+          {{ form.role }}
+          {% for error in form.role.errors %}
+            <div class="hint" style="color:var(--red-deep)">{{ error }}</div>
+          {% endfor %}
+        </div>
+
+        <div class="field-row">
+          <div class="field">
+            <label for="{{ form.status.id_for_label }}">Status *</label>
+            {{ form.status }}
+          </div>
+          <div class="field">
+            <label for="{{ form.application_date.id_for_label }}">Application date</label>
+            {{ form.application_date }}
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="{{ form.notes.id_for_label }}">Notes</label>
+          {{ form.notes }}
+          <div class="hint">Key requirements, referral contacts or preparation notes.</div>
+        </div>
+      </div>
+    </div>
+
+    {# Shown only when the status is "Interview" — see tracker/internship_form.js. #}
+    <div class="card" id="interview-section" hidden>
+      <div class="card-head">
+        <div>
+          <h3>Interview details</h3>
+          <p class="sub">Saved as the interview for this application.</p>
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label for="id_interview_date">Date and time</label>
+          <input type="datetime-local" name="interview_date" id="id_interview_date"
+                 value="{{ interview_date_value|default:'' }}">
+        </div>
+        <div class="field">
+          <label for="id_interview_type">Interview type</label>
+          <input type="text" name="interview_type" id="id_interview_type"
+                 value="{{ interview_type_value|default:'' }}"
+                 placeholder="e.g. Phone, On-site, Technical">
+        </div>
+      </div>
+    </div>
+
+    <div class="form-actions">
+      <a class="btn" href="{% url 'internship_list' %}">Cancel</a>
+      <button type="submit" class="btn btn-primary">Save application</button>
+    </div>
+  </form>
+{% endblock %}
+
+{% block extra_js %}
+  <script src="{% static 'js/tracker/internship_form.js' %}"></script>
+{% endblock %}

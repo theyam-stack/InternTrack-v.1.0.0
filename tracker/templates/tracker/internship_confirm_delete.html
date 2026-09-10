@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block title %}Delete application — InternTrack{% endblock %}
+{% block page_title %}Delete application{% endblock %}
+
+{% block content %}
+  <a class="back" href="{% url 'internship_detail' internship.pk %}">
+    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg>
+    Back to the application
+  </a>
+
+  <div class="card" style="max-width:560px">
+    <div class="card-head"><h3>Delete this application?</h3></div>
+    <p class="muted">
+      You're about to remove the <strong>{{ internship.role }}</strong> application at
+      <strong>{{ internship.company.name }}</strong>, along with any interviews recorded
+      against it. This cannot be undone.
+    </p>
+    <form method="post">
+      {% csrf_token %}
+      <div class="form-actions">
+        <a class="btn" href="{% url 'internship_detail' internship.pk %}">Cancel</a>
+        <button type="submit" class="btn btn-danger">Delete application</button>
+      </div>
+    </form>
+  </div>
+{% endblock %}

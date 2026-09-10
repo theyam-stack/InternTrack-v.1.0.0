@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Search &amp; filter — InternTrack{% endblock %}
+{% block page_title %}Search &amp; filter{% endblock %}
+
+{% block content %}
+  <div class="page-head">
+    <div>
+      <h1>Search &amp; filter</h1>
+      <p class="sub">Narrow your applications by keyword, status, company or date.</p>
+    </div>
+  </div>
+
+  <form method="get">
+    <div class="card">
+      <div class="field">
+        <label for="s-q">Keyword</label>
+        <input type="search" id="s-q" name="q" value="{{ search_query }}"
+               placeholder="Role, company, location or notes">
+        <div class="hint">Searches the role title, company name, location and your notes.</div>
+      </div>
+
+      <div class="field-row">
+        <div class="field">
+          <label for="s-status">Status</label>
+          <select id="s-status" name="status">
+            <option value="">Any status</option>
+            {% for value, label in status_choices %}
+              <option value="{{ value }}" {% if status_filter == value %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="field">
+          <label for="s-company">Company</label>
+          <select id="s-company" name="company">
+            <option value="">Any company</option>
+            {% for company in companies %}
+              <option value="{{ company.pk }}" {% if company_filter == company.pk|stringformat:"s" %}selected{% endif %}>{{ company.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+
+      <div class="field-row">
+        <div class="field">
+          <label for="s-from">Applied from</label>
+          <input type="date" id="s-from" name="from" value="{{ date_from }}">
+        </div>
+        <div class="field">
+          <label for="s-to">Applied until</label>
+          <input type="date" id="s-to" name="to" value="{{ date_to }}">
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <a class="btn" href="{% url 'search' %}">Reset</a>
+        <button type="submit" class="btn btn-primary">Search</button>
+      </div>
+    </div>
+  </form>
+
+  {% if searched %}
+    <div class="card" style="padding:8px">
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Company</th><th>Position</th><th>Location</th><th>Applied date</th><th>Status</th></tr>
+          </thead>
+          <tbody>
+            {% for internship in results %}
+              {% include "tracker/partials/_application_row.html" %}
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+      {% if results %}
+        <div class="tfoot">
+          <span class="muted">
+            {{ results|length }} of {{ total_count }} application{{ total_count|pluralize }} match
+          </span>
+        </div>
+      {% else %}
+        <div class="empty">
+          <h3>No matches</h3>
+          <p>Try a broader keyword, or clear one of the filters.</p>
+        </div>
+      {% endif %}
+    </div>
+  {% endif %}
+{% endblock %}
+
+{% block extra_js %}
+  <script src="{% static 'js/tracker/applications.js' %}"></script>
+{% endblock %}

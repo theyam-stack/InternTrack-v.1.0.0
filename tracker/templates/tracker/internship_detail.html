@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% load tracker_extras %}
+
+{% block title %}{{ internship.company.name }} — InternTrack{% endblock %}
+{% block page_title %}Application details{% endblock %}
+
+{% block content %}
+  <a class="back" href="{% url 'internship_list' %}">
+    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg>
+    Back to applications
+  </a>
+
+  <div class="card">
+    <div class="detail-head">
+      {% include "tracker/partials/_logo_chip.html" with company=internship.company %}
+      <div style="flex:1;min-width:200px">
+        <h2>{{ internship.company.name }} {% include "tracker/partials/_status_badge.html" %}</h2>
+        <p class="sub">
+          {{ internship.role }}{% if internship.company.location %} · {{ internship.company.location }}{% endif %}
+        </p>
+      </div>
+      <a class="icon-btn" href="{% url 'internship_update' internship.pk %}" aria-label="Edit application">
+        <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4z"/></svg>
+      </a>
+    </div>
+  </div>
+
+  <div class="grid grid-2" style="margin-top:20px">
+    <div class="card" style="margin-top:0">
+      <div class="card-head"><h3>Application timeline</h3></div>
+      <div class="timeline">
+        {% for stage in timeline %}
+          <div class="tl{% if stage.done %} done{% endif %}{% if stage.current %} now{% endif %}">
+            <i></i>
+            <b>{{ stage.label }}</b>
+            <small>{{ stage.detail }}</small>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:0">
+      <div class="card-head"><h3>Detailed information</h3></div>
+
+      <div class="kv"><span>Applied on</span><b>{{ internship.application_date|date:"j M Y" }}</b></div>
+      <div class="kv"><span>Days since applying</span><b>{{ internship.days_since_applied }}</b></div>
+      <div class="kv">
+        <span>Company website</span>
+        <b>
+          {% if internship.company.website %}
+            <a href="{{ internship.company.website }}" style="color:var(--orange)" rel="noopener">{{ internship.company.website }}</a>
+          {% else %}—{% endif %}
+        </b>
+      </div>
+      <div class="kv"><span>Location</span><b>{{ internship.company.location|default:"—" }}</b></div>
+      {% with next_interview=internship.interviews.first %}
+        {% if next_interview %}
+          <div class="kv">
+            <span>Next interview</span>
+            <b>{{ next_interview.interview_date|date:"j M Y · h:i A" }}</b>
+          </div>
+        {% endif %}
+      {% endwith %}
+
+      <p style="margin:16px 0 8px;font-weight:600;color:var(--ink)">Preparation notes</p>
+      <div class="notebox">{{ internship.notes|default:"No notes yet."|linebreaksbr }}</div>
+    </div>
+  </div>
+
+  {# --- Interviews on this application ------------------------------- #}
+  <div class="card">
+    <div class="card-head">
+      <h3>Interviews</h3>
+      <a class="linkish" href="{% url 'interview_create' internship.pk %}">Add interview</a>
+    </div>
+    {% for interview in internship.interviews.all %}
+      {% include "tracker/partials/_interview_row.html" %}
+    {% empty %}
+      <p class="muted" style="padding:8px 2px">No interviews recorded for this application yet.</p>
+    {% endfor %}
+  </div>
+
+  <div class="form-actions" style="justify-content:space-between">
+    <a class="btn btn-danger" href="{% url 'internship_delete' internship.pk %}">Delete application</a>
+    <a class="btn btn-navy" href="{% url 'internship_update' internship.pk %}">Edit details</a>
+  </div>
+{% endblock %}

@@ -1,0 +1,3 @@
+{# Status pill. The CSS classes are badge-applied / -interview / -accepted /
+   -rejected / -waiting, matching Internship.STATUS_CHOICES lowercased. #}
+<span class="badge badge-{{ internship.status|lower }}">{{ internship.get_status_display }}</span>

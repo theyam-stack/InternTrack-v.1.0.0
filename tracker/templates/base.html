@@ -1,18 +1,23 @@
-{% load static %}<!DOCTYPE html>
+{% load static tracker_extras %}<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>{% block title %}{{ page_title|default:"InternTrack" }} — InternTrack{% endblock %}</title>
+<title>{% block title %}InternTrack{% endblock %}</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="{% static 'css/interntrack.css' %}">
+<link rel="stylesheet" href="{% static 'css/base.css' %}">
+<link rel="stylesheet" href="{% static 'css/tracker.css' %}">
+{% block extra_css %}{% endblock %}
 </head>
 <body>
 
 <div class="shell">
 
+  {# ------------------------------------------------------------------ #}
+  {# Sidebar. active_nav is set by each view's template.                 #}
+  {# ------------------------------------------------------------------ #}
   <aside class="sidebar">
     <a class="brand" href="{% url 'dashboard' %}">
       <span class="brand-mark">
@@ -24,32 +29,32 @@
     </a>
     <p class="brand-tag">Track it. Apply it. Land it.</p>
 
-    <nav class="nav">
-      <a href="{% url 'dashboard' %}"{% if nav == 'dashboard' %} class="is-active"{% endif %}>
+    <nav class="nav" id="nav" aria-label="Main">
+      <a href="{% url 'dashboard' %}" {% if active_nav == 'dashboard' %}class="is-active" aria-current="page"{% endif %}>
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
         <span>Dashboard</span>
       </a>
-      <a href="{% url 'internship_list' %}"{% if nav == 'applications' %} class="is-active"{% endif %}>
+      <a href="{% url 'internship_list' %}" {% if active_nav == 'applications' %}class="is-active" aria-current="page"{% endif %}>
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6a1 1 0 011 1v2H8V4a1 1 0 011-1z"/><path d="M6 6h12a1 1 0 011 1v13a1 1 0 01-1 1H6a1 1 0 01-1-1V7a1 1 0 011-1z"/><path d="M9 12h6M9 16h4"/></svg>
         <span>Applications</span>
       </a>
-      <a href="{% url 'interview_list' %}"{% if nav == 'interviews' %} class="is-active"{% endif %}>
+      <a href="{% url 'interview_list' %}" {% if active_nav == 'interviews' %}class="is-active" aria-current="page"{% endif %}>
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 10h18M9 15l2 2 4-4"/></svg>
         <span>Interviews</span>
       </a>
-      <a href="{% url 'company_list' %}"{% if nav == 'companies' %} class="is-active"{% endif %}>
+      <a href="{% url 'company_list' %}" {% if active_nav == 'companies' %}class="is-active" aria-current="page"{% endif %}>
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 21V6a1 1 0 011-1h8a1 1 0 011 1v15"/><path d="M14 10h5a1 1 0 011 1v10"/><path d="M7 9h4M7 13h4M7 17h4M17 14h1M17 18h1"/><path d="M2 21h20"/></svg>
         <span>Companies</span>
       </a>
-      <a href="{% url 'search' %}"{% if nav == 'search' %} class="is-active"{% endif %}>
+      <a href="{% url 'search' %}" {% if active_nav == 'search' %}class="is-active" aria-current="page"{% endif %}>
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
         <span>Search</span>
       </a>
-      <a href="{% url 'export_page' %}"{% if nav == 'export' %} class="is-active"{% endif %}>
+      <a href="{% url 'export_page' %}" {% if active_nav == 'export' %}class="is-active" aria-current="page"{% endif %}>
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M8 11l4 4 4-4"/><path d="M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2"/></svg>
         <span>Export</span>
       </a>
-      <a href="{% url 'settings' %}"{% if nav == 'settings' %} class="is-active"{% endif %}>
+      <a href="{% url 'settings' %}" {% if active_nav == 'settings' %}class="is-active" aria-current="page"{% endif %}>
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 00.3 1.9l.1.1a2 2 0 11-2.8 2.8l-.1-.1a1.7 1.7 0 00-1.9-.3 1.7 1.7 0 00-1 1.5V21a2 2 0 11-4 0v-.1A1.7 1.7 0 008.9 19a1.7 1.7 0 00-1.9.3l-.1.1a2 2 0 11-2.8-2.8l.1-.1a1.7 1.7 0 00.3-1.9 1.7 1.7 0 00-1.5-1H3a2 2 0 110-4h.1A1.7 1.7 0 005 8.9a1.7 1.7 0 00-.3-1.9l-.1-.1a2 2 0 112.8-2.8l.1.1a1.7 1.7 0 001.9.3H9a1.7 1.7 0 001-1.5V3a2 2 0 114 0v.1a1.7 1.7 0 001 1.5 1.7 1.7 0 001.9-.3l.1-.1a2 2 0 112.8 2.8l-.1.1a1.7 1.7 0 00-.3 1.9V9a1.7 1.7 0 001.5 1H21a2 2 0 110 4h-.1a1.7 1.7 0 00-1.5 1z"/></svg>
         <span>Settings</span>
       </a>
@@ -62,37 +67,38 @@
     </div>
   </aside>
 
+  {# ------------------------------------------------------------------ #}
+  {# Main column                                                         #}
+  {# ------------------------------------------------------------------ #}
   <main class="main">
     <header class="topbar">
-      <h2>{{ page_title|default:"Dashboard" }}</h2>
-      <form class="topsearch" method="get" action="{% url 'search' %}" role="search">
+      <h2>{% block page_title %}Dashboard{% endblock %}</h2>
+
+      <form class="topsearch" method="get" action="{% url 'internship_list' %}" role="search">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
-        <input type="search" name="q" placeholder="Search opportunities…" aria-label="Search applications">
+        <input type="search" name="q" aria-label="Search opportunities" placeholder="Search opportunities…">
       </form>
+
       <a class="bell" href="{% url 'interview_list' %}" aria-label="Upcoming interviews">
         <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 10-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 01-3.4 0"/></svg>
       </a>
+
       <a class="whoami" href="{% url 'settings' %}">
-        <span class="avatar">{{ initials }}</span>
-        <span class="who-text"><b>{{ display_name }}</b><small>{{ profile.title|default:"Candidate" }}</small></span>
+        <span class="avatar">{{ user.get_full_name|default:user.username|initials }}</span>
+        <span class="who-text">
+          <b>{{ user.get_full_name|default:user.username }}</b>
+          <small>Candidate</small>
+        </span>
       </a>
     </header>
 
     <div class="content">
-      {% if messages %}
-        <div class="alerts">
-          {% for message in messages %}
-            <div class="alert alert-{{ message.tags|default:'info' }}">{{ message }}</div>
-          {% endfor %}
-        </div>
-      {% endif %}
-
       {% block content %}{% endblock %}
     </div>
   </main>
 </div>
 
-<script src="{% static 'js/interntrack.js' %}"></script>
-{% block scripts %}{% endblock %}
+<script src="{% static 'js/base.js' %}"></script>
+{% block extra_js %}{% endblock %}
 </body>
 </html>
