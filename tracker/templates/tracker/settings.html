@@ -97,3 +97,9 @@
 {% block extra_js %}
   <script src="{% static 'js/tracker/settings.js' %}"></script>
 {% endblock %}
+
+<div class="field">
+  <label for="id_title">Job title / role you're seeking</label>
+  <input type="text" name="title" id="id_title" value="{{ profile.title }}"
+         placeholder="e.g. Backend Developer Intern">
+</div>

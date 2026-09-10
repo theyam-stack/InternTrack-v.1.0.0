@@ -238,3 +238,134 @@ def interview_create(request, pk):
         form = InterviewForm()
     return render(request, 'tracker/interview_form.html', {'form': form, 'internship': internship})
 
+
+from django.utils import timezone
+from datetime import timedelta
+
+@login_required
+def internship_detail(request, pk):
+    internship = get_object_or_404(Internship, pk=pk, user=request.user)
+
+    stage_order = ['Applied', 'Interview', 'Accepted', 'Rejected', 'Waiting']
+    stage_labels = {
+        'Applied': ('Applied', 'Application submitted'),
+        'Interview': ('Interview', 'Interview stage reached'),
+        'Accepted': ('Accepted', 'Offer accepted'),
+        'Rejected': ('Rejected', 'Application closed'),
+        'Waiting': ('Waiting', 'Awaiting response'),
+    }
+    current_index = stage_order.index(internship.status) if internship.status in stage_order else 0
+    timeline = []
+    for i, key in enumerate(stage_order[:current_index + 1]):
+        label, detail = stage_labels[key]
+        timeline.append({
+            'label': label,
+            'detail': detail,
+            'done': i < current_index,
+            'current': i == current_index,
+        })
+
+    return render(request, 'tracker/internship_detail.html', {
+        'internship': internship,
+        'timeline': timeline,
+    })
+
+
+@login_required
+def company_list(request):
+    companies = Company.objects.filter(internship__user=request.user).distinct()
+
+    stage_rank = {'Applied': 1, 'Waiting': 2, 'Interview': 3, 'Rejected': 4, 'Accepted': 5}
+    company_data = []
+    for company in companies:
+        apps = Internship.objects.filter(company=company, user=request.user)
+        furthest = max(apps, key=lambda a: stage_rank.get(a.status, 0), default=None)
+        company.application_count = apps.count()
+        company.furthest_stage = furthest.status if furthest else '—'
+        company_data.append(company)
+
+    return render(request, 'tracker/company_list.html', {'companies': company_data})
+
+
+@login_required
+def search(request):
+    searched = bool(request.GET)
+    search_query = request.GET.get('q', '').strip()
+    status_filter = request.GET.get('status', '')
+    company_filter = request.GET.get('company', '')
+    date_from = request.GET.get('from', '')
+    date_to = request.GET.get('to', '')
+
+    results = Internship.objects.filter(user=request.user)
+
+    if search_query:
+        results = results.filter(
+            Q(role__icontains=search_query) |
+            Q(company__name__icontains=search_query) |
+            Q(company__location__icontains=search_query) |
+            Q(notes__icontains=search_query)
+        )
+    if status_filter:
+        results = results.filter(status=status_filter)
+    if company_filter:
+        results = results.filter(company__pk=company_filter)
+    if date_from:
+        results = results.filter(application_date__gte=date_from)
+    if date_to:
+        results = results.filter(application_date__lte=date_to)
+
+    results = results.order_by('-application_date')
+
+    return render(request, 'tracker/search.html', {
+        'searched': searched,
+        'search_query': search_query,
+        'status_filter': status_filter,
+        'company_filter': company_filter,
+        'date_from': date_from,
+        'date_to': date_to,
+        'status_choices': Internship.STATUS_CHOICES,
+        'companies': Company.objects.filter(internship__user=request.user).distinct(),
+        'results': results,
+        'total_count': results.count(),
+    })
+
+
+@login_required
+def interview_list(request):
+    range_filter = request.GET.get('range', '30')
+    range_options = [('7', 'Next 7 days'), ('30', 'Next 30 days'), ('all', 'All upcoming')]
+
+    now = timezone.now()
+    base_qs = Interview.objects.filter(internship__user=request.user)
+
+    upcoming = base_qs.filter(interview_date__gte=now)
+    if range_filter != 'all':
+        days = int(range_filter)
+        upcoming = upcoming.filter(interview_date__lte=now + timedelta(days=days))
+    upcoming = upcoming.order_by('interview_date')
+
+    past = base_qs.filter(interview_date__lt=now).order_by('-interview_date')
+
+    return render(request, 'tracker/interview_list.html', {
+        'upcoming': upcoming,
+        'past': past,
+        'range_filter': range_filter,
+        'range_options': range_options,
+    })
+
+
+@login_required
+def settings_view(request):
+    saved = False
+    if request.method == 'POST':
+        full_name = request.POST.get('display_name', '').strip()
+        email = request.POST.get('email', '').strip()
+        if full_name:
+            parts = full_name.split(' ', 1)
+            request.user.first_name = parts[0]
+            request.user.last_name = parts[1] if len(parts) > 1 else ''
+        request.user.email = email
+        request.user.save()
+        saved = True
+
+    return render(request, 'tracker/settings.html', {'saved': saved})
