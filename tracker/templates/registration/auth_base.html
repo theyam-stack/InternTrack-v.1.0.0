@@ -1,0 +1,41 @@
+{% load static %}<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% block title %}InternTrack{% endblock %} — InternTrack</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{% static 'css/interntrack.css' %}">
+</head>
+<body>
+<div class="auth">
+
+  <div class="auth-brand">
+    <div class="brand">
+      <span class="brand-mark">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#F4512D" stroke-width="2" stroke-linecap="round">
+          <path d="M12 2v20M2 12h20M5 5l14 14M19 5L5 19"/>
+        </svg>
+      </span>
+      <span class="brand-name">InternTrack</span>
+    </div>
+    <h1>Track it. Apply it. Land it.</h1>
+    <p class="tagline">Your internship journey, organised in one place.</p>
+    <div class="auth-stats">
+      <div><b>Track</b><span>every application</span></div>
+      <div><b>Prepare</b><span>for each interview</span></div>
+      <div><b>Land</b><span>the offer</span></div>
+    </div>
+  </div>
+
+  <div class="auth-form">
+    <div class="auth-inner">
+      {% block content %}{% endblock %}
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

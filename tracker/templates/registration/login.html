@@ -1,0 +1,45 @@
+{% extends "registration/base_auth.html" %}
+
+{% block title %}Log in — InternTrack{% endblock %}
+
+{% block auth_content %}
+  <h2>Welcome back</h2>
+  <p class="sub">Sign in to continue your internship journey.</p>
+
+  {% if form.errors %}
+    <div class="factbox" style="background:var(--tint-red);color:var(--red-deep);margin-bottom:22px">
+      That username and password don't match an account. Please try again.
+    </div>
+  {% endif %}
+
+  <form method="post" action="{% url 'login' %}">
+    {% csrf_token %}
+
+    <div class="field">
+      <label for="{{ form.username.id_for_label }}">Username</label>
+      {{ form.username }}
+    </div>
+
+    <div class="field">
+      <label for="{{ form.password.id_for_label }}">Password</label>
+      {{ form.password }}
+      <button type="button" class="linkish" data-reveal="{{ form.password.auto_id }}"
+              aria-label="Show password" style="margin-top:6px">Show</button>
+    </div>
+
+    <input type="hidden" name="next" value="{{ next }}">
+    <button type="submit" class="btn btn-primary btn-block">Log in</button>
+  </form>
+
+  <p class="auth-foot"><a href="{% url 'password_reset' %}">Forgot password?</a></p>
+
+  <div class="or">or continue with</div>
+  <div class="oauth">
+    {# Social sign-in is in the master design but has no backend yet.
+       Wire these up with django-allauth, then drop the disabled attribute. #}
+    <button type="button" class="btn" disabled title="Not available yet">Google</button>
+    <button type="button" class="btn" disabled title="Not available yet">GitHub</button>
+  </div>
+
+  <p class="auth-foot">Don't have an account? <a href="{% url 'register' %}">Register</a></p>
+{% endblock %}

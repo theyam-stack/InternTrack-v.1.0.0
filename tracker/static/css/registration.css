@@ -1,0 +1,43 @@
+/* ==========================================================================
+   InternTrack — registration layer
+   The split-screen sign-in / sign-up / password-reset shell.
+   Loaded only on registration/* pages, after base.css.
+   ========================================================================== */
+
+/* ==========================================================================
+   Auth screens
+   ========================================================================== */
+.auth{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);min-height:100vh}
+.auth-brand{
+  background:var(--blue);color:#fff;padding:52px 56px;
+  display:flex;flex-direction:column;justify-content:center;position:relative;overflow:hidden;
+}
+.auth-brand::after{
+  content:"";position:absolute;right:-90px;bottom:-90px;width:320px;height:320px;border-radius:50%;
+  background:radial-gradient(circle at 30% 30%,rgba(244,81,45,.55),rgba(244,81,45,0) 70%);
+}
+.auth-brand .brand{margin-bottom:40px}
+.auth-brand h1{color:#fff;font-size:2.6rem;max-width:12ch}
+.auth-brand .tagline{color:var(--yellow);font-size:.95rem;font-weight:500;margin-top:16px;max-width:34ch}
+.auth-stats{display:flex;gap:34px;margin-top:44px;position:relative;z-index:1}
+.auth-stats div b{display:block;font-size:1.9rem;font-weight:700;color:#fff;line-height:1}
+.auth-stats div span{font-size:.7rem;letter-spacing:.1em;color:#9FB6DA;text-transform:uppercase}
+.auth-form{display:grid;place-items:center;padding:48px 32px;background:#fff}
+.auth-inner{width:100%;max-width:400px}
+.auth-inner h2{margin-bottom:6px}
+.auth-inner .sub{margin-bottom:28px}
+.auth-foot{margin-top:22px;text-align:center;color:var(--muted);font-size:.86rem}
+.auth-foot a{color:var(--orange);font-weight:600;cursor:pointer}
+.or{display:flex;align-items:center;gap:12px;margin:22px 0;color:var(--muted);font-size:.8rem}
+.or::before,.or::after{content:"";flex:1;height:1px;background:var(--line)}
+.oauth{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.factbox{background:var(--field);border-radius:12px;padding:14px 16px;font-size:.83rem;color:var(--body);margin-top:22px}
+
+/* ==========================================================================
+   Responsive
+   ========================================================================== */
+@media (max-width:860px){
+  .auth{grid-template-columns:1fr}
+  .auth-brand{padding:34px 26px}
+  .auth-brand h1{font-size:1.9rem}
+}

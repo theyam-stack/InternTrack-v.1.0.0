@@ -1,0 +1,39 @@
+{% extends "registration/base_auth.html" %}
+
+{% block title %}Create account — InternTrack{% endblock %}
+
+{% block auth_content %}
+  <h2>Create account</h2>
+  <p class="sub">Sign up and organise your professional future.</p>
+
+  <form method="post" action="{% url 'register' %}">
+    {% csrf_token %}
+
+    {% if form.non_field_errors %}
+      <div class="factbox" style="background:var(--tint-red);color:var(--red-deep);margin-bottom:22px">
+        {{ form.non_field_errors|join:" " }}
+      </div>
+    {% endif %}
+
+    {% for field in form %}
+      <div class="field">
+        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+        {{ field }}
+        {% if field.help_text %}<div class="hint">{{ field.help_text|safe }}</div>{% endif %}
+        {% for error in field.errors %}
+          <div class="hint" style="color:var(--red-deep)">{{ error }}</div>
+        {% endfor %}
+      </div>
+    {% endfor %}
+
+    <button type="submit" class="btn btn-primary btn-block">Create account</button>
+  </form>
+
+  <div class="or">or register with</div>
+  <div class="oauth">
+    <button type="button" class="btn" disabled title="Not available yet">Google</button>
+    <button type="button" class="btn" disabled title="Not available yet">GitHub</button>
+  </div>
+
+  <p class="auth-foot">Already have an account? <a href="{% url 'login' %}">Log in</a></p>
+{% endblock %}

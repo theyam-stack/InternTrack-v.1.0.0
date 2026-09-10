@@ -1,0 +1,50 @@
+{% load static %}<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% block title %}InternTrack{% endblock %}</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{% static 'css/base.css' %}">
+<link rel="stylesheet" href="{% static 'css/registration.css' %}">
+</head>
+<body>
+
+<div class="auth">
+
+  {# Left panel — identical on every registration page. #}
+  <div class="auth-brand">
+    <div class="brand">
+      <span class="brand-mark">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#F4512D" stroke-width="2" stroke-linecap="round">
+          <path d="M12 2v20M2 12h20M5 5l14 14M19 5L5 19"/>
+        </svg>
+      </span>
+      <span class="brand-name">InternTrack</span>
+    </div>
+    <h1>Track it. Apply it. Land it.</h1>
+    <p class="tagline">Your internship journey, organised in one place.</p>
+
+    {# Figures from the master design. Swap for real aggregates when the
+       marketing numbers are available from the backend. #}
+    <div class="auth-stats">
+      <div><b>34</b><span>Applications</span></div>
+      <div><b>12</b><span>Interviews</span></div>
+      <div><b>3</b><span>Offers</span></div>
+    </div>
+  </div>
+
+  {# Right panel — each page fills this in. #}
+  <div class="auth-form">
+    <div class="auth-inner">
+      {% block auth_content %}{% endblock %}
+    </div>
+  </div>
+</div>
+
+<script src="{% static 'js/base.js' %}"></script>
+<script src="{% static 'js/registration/auth.js' %}"></script>
+</body>
+</html>
