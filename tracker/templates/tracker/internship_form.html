@@ -43,6 +43,15 @@
             <div class="hint" style="color:var(--red-deep)">{{ error }}</div>
           {% endfor %}
         </div>
+
+        <div class="field">
+          <label for="{{ form.company_location.id_for_label }}">Location</label>
+          {{ form.company_location }}
+          <div class="hint">City, province, country, or “Remote”.</div>
+          {% for error in form.company_location.errors %}
+            <div class="hint" style="color:var(--red-deep)">{{ error }}</div>
+          {% endfor %}
+        </div>
       </div>
 
       <div class="card" style="margin-top:0">

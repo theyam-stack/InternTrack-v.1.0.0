@@ -1,0 +1,52 @@
+{% extends "registration/base_auth.html" %}
+
+{% block title %}Create an account — InternTrack{% endblock %}
+
+{% block auth_content %}
+  <h2>Start tracking your future</h2>
+  <p class="sub">Create a free account to organise every internship application.</p>
+
+  {% if form.non_field_errors %}
+    <div class="factbox" style="background:var(--tint-red);color:var(--red-deep);margin-bottom:22px" role="alert">
+      {{ form.non_field_errors }}
+    </div>
+  {% endif %}
+
+  <form method="post" novalidate>
+    {% csrf_token %}
+
+    <div class="field">
+      <label for="{{ form.username.id_for_label }}">Username</label>
+      {{ form.username }}
+      <div class="hint">Choose a unique username for signing in.</div>
+      {% for error in form.username.errors %}
+        <div class="hint" style="color:var(--red-deep)" role="alert">{{ error }}</div>
+      {% endfor %}
+    </div>
+
+    <div class="field">
+      <label for="{{ form.password1.id_for_label }}">Password</label>
+      {{ form.password1 }}
+      <div class="hint">Use at least 8 characters and avoid common passwords.</div>
+      <button type="button" class="linkish" data-reveal="{{ form.password1.auto_id }}"
+              aria-label="Show password" style="margin-top:6px">Show</button>
+      {% for error in form.password1.errors %}
+        <div class="hint" style="color:var(--red-deep)" role="alert">{{ error }}</div>
+      {% endfor %}
+    </div>
+
+    <div class="field">
+      <label for="{{ form.password2.id_for_label }}">Confirm password</label>
+      {{ form.password2 }}
+      <button type="button" class="linkish" data-reveal="{{ form.password2.auto_id }}"
+              aria-label="Show password confirmation" style="margin-top:6px">Show</button>
+      {% for error in form.password2.errors %}
+        <div class="hint" style="color:var(--red-deep)" role="alert">{{ error }}</div>
+      {% endfor %}
+    </div>
+
+    <button type="submit" class="btn btn-primary btn-block">Create account</button>
+  </form>
+
+  <p class="auth-foot">Already have an account? <a href="{% url 'login' %}">Log in</a></p>
+{% endblock %}

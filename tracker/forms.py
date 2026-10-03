@@ -4,6 +4,7 @@ from .models import Internship, Company, Interview
 
 class InternshipForm(forms.ModelForm):
     company_name = forms.CharField(max_length=200, label='Company')
+    company_location = forms.CharField(max_length=200, required=False, label='Location')
 
     class Meta:
         model = Internship
@@ -16,6 +17,7 @@ class InternshipForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         if self.instance and self.instance.pk and self.instance.company:
             self.fields['company_name'].initial = self.instance.company.name
+            self.fields['company_location'].initial = self.instance.company.location
 
 
 class CompanyForm(forms.ModelForm):

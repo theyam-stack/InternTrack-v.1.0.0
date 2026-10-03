@@ -78,7 +78,8 @@ class Profile(models.Model):
         return f"Profile for {self.user.username}"
 
 
-    @receiver(post_save, sender=User)
-    def create_user_profile(sender, instance, created, **kwargs):
-        if created:
-            Profile.objects.create(user=instance)
+@receiver(post_save, sender=User)
+def create_user_profile(sender, instance, created, **kwargs):
+    """Give every newly registered user a profile for the shared layout."""
+    if created:
+        Profile.objects.get_or_create(user=instance)

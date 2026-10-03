@@ -6,6 +6,8 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login
 from django.http import HttpResponse
 from django.db.models import Q
+from django.core.paginator import Paginator
+from django.utils.dateparse import parse_date
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import letter
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph
@@ -34,14 +36,32 @@ def internship_list(request):
     if status_filter:
         internships = internships.filter(status=status_filter)
 
+    allowed_sorts = {'-application_date', 'application_date', 'company__name', 'role'}
     sort_order = request.GET.get('sort', '-application_date')
+    if sort_order not in allowed_sorts:
+        sort_order = '-application_date'
     internships = internships.order_by(sort_order)
 
+    paginator = Paginator(internships, 10)
+    page_obj = paginator.get_page(request.GET.get('page'))
+    status_pills = [
+        {
+            'value': value,
+            'label': label,
+            'count': internships.filter(status=value).count(),
+        }
+        for value, label in Internship.STATUS_CHOICES
+    ]
+
     context = {
-        'internships': internships,
+        'page_obj': page_obj,
+        'total_count': internships.count(),
         'search_query': search_query,
         'status_filter': status_filter,
         'status_choices': Internship.STATUS_CHOICES,
+        'status_pills': status_pills,
+        'sort_order': sort_order,
+        'active_nav': 'applications',
     }
     return render(request, 'tracker/internship_list.html', context)
 
@@ -54,7 +74,13 @@ def internship_create(request):
         form = InternshipForm(request.POST)
         if form.is_valid():
             company_name = form.cleaned_data['company_name'].strip()
-            company, created = Company.objects.get_or_create(name=company_name)
+            company, created = Company.objects.get_or_create(
+                name=company_name,
+                defaults={'location': form.cleaned_data['company_location'].strip()},
+            )
+            if not created and company.location != form.cleaned_data['company_location'].strip():
+                company.location = form.cleaned_data['company_location'].strip()
+                company.save(update_fields=['location'])
 
             internship = form.save(commit=False)
             internship.company = company
@@ -78,12 +104,18 @@ def internship_create(request):
 
 @login_required
 def internship_update(request, pk):
-    internship = get_object_or_404(Internship, pk=pk)
+    internship = get_object_or_404(Internship, pk=pk, user=request.user)
     if request.method == 'POST':
         form = InternshipForm(request.POST, instance=internship)
         if form.is_valid():
             company_name = form.cleaned_data['company_name'].strip()
-            company, created = Company.objects.get_or_create(name=company_name)
+            company, created = Company.objects.get_or_create(
+                name=company_name,
+                defaults={'location': form.cleaned_data['company_location'].strip()},
+            )
+            if not created and company.location != form.cleaned_data['company_location'].strip():
+                company.location = form.cleaned_data['company_location'].strip()
+                company.save(update_fields=['location'])
 
             internship = form.save(commit=False)
             internship.company = company
@@ -119,7 +151,7 @@ def internship_update(request, pk):
 
 @login_required
 def internship_delete(request, pk):
-    internship = get_object_or_404(Internship, pk=pk)
+    internship = get_object_or_404(Internship, pk=pk, user=request.user)
     if request.method == 'POST':
         internship.delete()
         return redirect('internship_list')
@@ -157,23 +189,35 @@ def dashboard(request):
         'accepted': internships.filter(status='Accepted').count(),
         'rejected': internships.filter(status='Rejected').count(),
         'waiting': internships.filter(status='Waiting').count(),
+        'pending': internships.filter(status__in=['Applied', 'Waiting']).count(),
     }
 
     context = {
         'stats': stats,
         'recent_internships': internships.order_by('-application_date')[:5],
+        'upcoming_interviews': Interview.objects.filter(
+            internship__user=request.user,
+            interview_date__gte=timezone.now(),
+        ).order_by('interview_date')[:5],
+        'active_nav': 'dashboard',
     }
     return render(request, 'tracker/dashboard.html', context)
 
 
 @login_required
 def export_page(request):
-    return render(request, 'tracker/export.html')
+    return render(request, 'tracker/export.html', {
+        'status_choices': Internship.STATUS_CHOICES,
+        'active_nav': 'export',
+    })
 
 
 @login_required
 def export_csv(request):
     internships = Internship.objects.filter(user=request.user).order_by('-application_date')
+    status_filter = request.GET.get('status', '')
+    if status_filter in dict(Internship.STATUS_CHOICES):
+        internships = internships.filter(status=status_filter)
 
     filename = clean_filename(request.GET.get('filename'), 'internship_applications')
 
@@ -198,6 +242,9 @@ def export_csv(request):
 @login_required
 def export_pdf(request):
     internships = Internship.objects.filter(user=request.user).order_by('-application_date')
+    status_filter = request.GET.get('status', '')
+    if status_filter in dict(Internship.STATUS_CHOICES):
+        internships = internships.filter(status=status_filter)
 
     filename = clean_filename(request.GET.get('filename'), 'internship_report')
 
@@ -226,7 +273,7 @@ def export_pdf(request):
 
 @login_required
 def interview_create(request, pk):
-    internship = get_object_or_404(Internship, pk=pk)
+    internship = get_object_or_404(Internship, pk=pk, user=request.user)
     if request.method == 'POST':
         form = InterviewForm(request.POST)
         if form.is_valid():
@@ -284,7 +331,10 @@ def company_list(request):
         company.furthest_stage = furthest.status if furthest else '—'
         company_data.append(company)
 
-    return render(request, 'tracker/company_list.html', {'companies': company_data})
+    return render(request, 'tracker/company_list.html', {
+        'companies': company_data,
+        'active_nav': 'companies',
+    })
 
 
 @login_required
@@ -307,12 +357,14 @@ def search(request):
         )
     if status_filter:
         results = results.filter(status=status_filter)
-    if company_filter:
+    if company_filter and company_filter.isdigit():
         results = results.filter(company__pk=company_filter)
-    if date_from:
-        results = results.filter(application_date__gte=date_from)
-    if date_to:
-        results = results.filter(application_date__lte=date_to)
+    parsed_from = parse_date(date_from) if date_from else None
+    parsed_to = parse_date(date_to) if date_to else None
+    if parsed_from:
+        results = results.filter(application_date__gte=parsed_from)
+    if parsed_to:
+        results = results.filter(application_date__lte=parsed_to)
 
     results = results.order_by('-application_date')
 
@@ -327,6 +379,7 @@ def search(request):
         'companies': Company.objects.filter(internship__user=request.user).distinct(),
         'results': results,
         'total_count': results.count(),
+        'active_nav': 'search',
     })
 
 
@@ -339,6 +392,9 @@ def interview_list(request):
     base_qs = Interview.objects.filter(internship__user=request.user)
 
     upcoming = base_qs.filter(interview_date__gte=now)
+    allowed_ranges = {value for value, _ in range_options}
+    if range_filter not in allowed_ranges:
+        range_filter = '30'
     if range_filter != 'all':
         days = int(range_filter)
         upcoming = upcoming.filter(interview_date__lte=now + timedelta(days=days))
@@ -351,6 +407,7 @@ def interview_list(request):
         'past': past,
         'range_filter': range_filter,
         'range_options': range_options,
+        'active_nav': 'interviews',
     })
 
 
@@ -368,4 +425,7 @@ def settings_view(request):
         request.user.save()
         saved = True
 
-    return render(request, 'tracker/settings.html', {'saved': saved})
+    return render(request, 'tracker/settings.html', {
+        'saved': saved,
+        'active_nav': 'settings',
+    })
